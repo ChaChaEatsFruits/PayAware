@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Label } from '@/components/ui/label'
 import { CreditCard, Loader2 } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
-import type { RazorpayResponse } from '@/types/razorpay'
+import { getBalance } from '../dashboard/actions'
+import { RazorpayResponse } from '@/types/razorpay'
 
 export function PaymentGenerator() {
     const { toast } = useToast()
@@ -18,14 +19,21 @@ export function PaymentGenerator() {
     const [note, setNote] = useState('')
     const [loading, setLoading] = useState(false)
     const [scriptLoaded, setScriptLoaded] = useState(false)
+    const [balance, setBalance] = useState(0)
 
-    // Load Razorpay checkout script
+    // Load Razorpay checkout script and fetch balance
     useEffect(() => {
         const script = document.createElement('script')
         script.src = 'https://checkout.razorpay.com/v1/checkout.js'
         script.async = true
         script.onload = () => setScriptLoaded(true)
         document.body.appendChild(script)
+
+        const fetchBalance = async () => {
+            const { balance } = await getBalance()
+            setBalance(balance)
+        }
+        fetchBalance()
 
         return () => {
             document.body.removeChild(script)
@@ -38,6 +46,16 @@ export function PaymentGenerator() {
                 title: 'Loading',
                 description: 'Payment system is loading, please wait...',
                 variant: 'default',
+            })
+            return
+        }
+
+        const amountNum = parseFloat(amount)
+        if (amountNum > balance) {
+            toast({
+                title: "Insufficient Balance",
+                description: `You only have ₹${balance}. Cannot pay ₹${amount}.`,
+                variant: "destructive"
             })
             return
         }
@@ -204,6 +222,12 @@ export function PaymentGenerator() {
                             Value not accepted !!
                         </div>
                     )}
+                    {parseFloat(amount) > balance && (
+                        <div className="text-sm text-red-500 font-medium">
+                            Insufficient balance !!
+                        </div>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">Available balance: ₹{balance}</p>
                 </div>
 
                 <div className="space-y-2">
@@ -227,7 +251,7 @@ export function PaymentGenerator() {
                 <Button
                     className="w-full"
                     onClick={handlePay}
-                    disabled={!isValid || loading || !scriptLoaded}
+                    disabled={!isValid || loading || !scriptLoaded || parseFloat(amount) > balance}
                 >
                     {loading ? (
                         <>

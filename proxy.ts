@@ -2,7 +2,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
-export async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
         request,
     })
@@ -36,6 +36,9 @@ export async function middleware(request: NextRequest) {
 
     const pathname = request.nextUrl.pathname
 
+    if (pathname === '/') {
+        return NextResponse.redirect(new URL('/login', request.url))
+    }
     // Protect Dashboard routes
     if (pathname.startsWith('/dashboard') && !user) {
         return NextResponse.redirect(new URL('/login', request.url))
@@ -60,7 +63,7 @@ export async function middleware(request: NextRequest) {
     if (user && (pathname.startsWith('/dashboard') || pathname.startsWith('/payments') || pathname.startsWith('/insights') || pathname.startsWith('/updates'))) {
         // Check if user has completed onboarding
         const { data: profile } = await supabase
-            .from('user_profiles')
+            .from('users')
             .select('onboarding_completed')
             .eq('user_id', user.id)
             .single()
@@ -74,7 +77,7 @@ export async function middleware(request: NextRequest) {
     if ((pathname.startsWith('/login') || pathname.startsWith('/signup')) && user) {
         // Check if user has completed onboarding first
         const { data: profile } = await supabase
-            .from('user_profiles')
+            .from('users')
             .select('onboarding_completed')
             .eq('user_id', user.id)
             .single()
