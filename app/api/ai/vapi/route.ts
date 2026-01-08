@@ -1,11 +1,11 @@
-import { createClient } from '@supabase/supabase-js' 
+import { createClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json()
-        
+
         if (body.message.type === 'tool-calls') {
             const toolCall = body.message.toolCalls[0]
             const functionName = toolCall.function.name
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
                 // 3. Create Admin Client
                 const supabaseAdmin = createClient(
                     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!
+                    process.env.SUPABASE_SERVICE_ROLE_KEY!
                 );
 
                 // --- NEW: BALANCE VALIDATION LOGIC ---
@@ -58,10 +58,10 @@ export async function POST(req: NextRequest) {
                     // Check if expense exceeds balance
                     if (currentBalance - Number(amount) < 0) {
                         return NextResponse.json({
-                            results: [{ 
-                                toolCallId: toolCall.id, 
+                            results: [{
+                                toolCallId: toolCall.id,
                                 // The AI will read this exact message to the user
-                                result: `Transaction failed. You only have ${currentBalance} rupees available, but you tried to spend ${amount}.` 
+                                result: `Transaction failed. You only have ${currentBalance} rupees available, but you tried to spend ${amount}.`
                             }]
                         });
                     }
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
                 }
 
                 revalidatePath('/dashboard')
-                
+
                 return NextResponse.json({
                     results: [
                         {
@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
                 })
             }
         }
-        
+
         return NextResponse.json({});
 
     } catch (error) {
