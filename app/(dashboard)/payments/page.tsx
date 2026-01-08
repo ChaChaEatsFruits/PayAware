@@ -4,6 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { ShieldCheck } from 'lucide-react'
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export default function PaymentsPage() {
     return (
         <div className="flex flex-col space-y-8 p-8 max-w-4xl mx-auto">

@@ -1,4 +1,8 @@
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { getBalance, getRecentTransactions } from './actions'
+
 import { TransactionForm } from './transaction-form'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/utils/format'

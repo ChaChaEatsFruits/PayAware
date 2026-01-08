@@ -4,6 +4,9 @@ import { Badge } from '@/components/ui/badge'
 import { Newspaper, BellRing, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export default async function UpdatesPage() {
     // Fetch data in parallel
     const regulatoryUpdatesData = fetchRegulatoryUpdates()

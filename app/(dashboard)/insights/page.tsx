@@ -2,6 +2,10 @@ import { AIClient } from './ai-client'
 import { Bot } from 'lucide-react'
 import { getChatHistory } from './actions'
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+
 export default async function InsightsPage() {
     const history = await getChatHistory()
 

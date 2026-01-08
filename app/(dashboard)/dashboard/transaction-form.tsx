@@ -32,20 +32,19 @@ import { useToast } from '@/components/ui/use-toast'
 
 const formSchema = z.object({
     type: z.enum(['income', 'expense']),
-    amount: z.coerce.number().min(0.01, { message: "Amount must be positive" }),
+    amount: z.number().min(0.01, { message: "Amount must be positive" }),
     category: z.string().min(1, { message: "Please select a category" }),
     description: z.string().optional(),
 })
 
-type FormInput = z.input<typeof formSchema>
-type FormOutput = z.output<typeof formSchema>
+type FormValues = z.infer<typeof formSchema>
 
 export function TransactionForm() {
     const { toast } = useToast()
     const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-    const form = useForm<FormInput, unknown, FormOutput>({
+    const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             type: 'expense',
@@ -55,7 +54,7 @@ export function TransactionForm() {
         },
     })
 
-    async function onSubmit(values: FormOutput) {
+    async function onSubmit(values: FormValues) {
         setLoading(true)
         const formData = new FormData()
         formData.append('type', values.type)
@@ -150,9 +149,11 @@ export function TransactionForm() {
                                                 className="pl-9"
                                                 min={0}
                                                 step={0.01}
-                                                {...field}
-                                                value={field.value as number ?? 0}
+                                                value={field.value}
                                                 onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
+                                                onBlur={field.onBlur}
+                                                name={field.name}
+                                                ref={field.ref}
                                             />
                                         </div>
                                     </FormControl>
