@@ -15,13 +15,37 @@ export async function saveUserProfile(formData: {
         return { error: 'Unauthorized' }
     }
 
-    const { error } = await supabase.from('user_profiles').insert({
-        user_id: user.id,
-        name: formData.name,
-        email: formData.email,
-        monthly_budget: formData.monthlyBudget,
-        onboarding_completed: true,
-    })
+    // Check if profile exists
+    const { data: existingProfile } = await supabase
+        .from('users')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .single()
+
+    let error;
+    if (existingProfile) {
+        const { error: updateError } = await supabase
+            .from('users')
+            .update({
+                name: formData.name,
+                email: formData.email,
+                monthly_budget: formData.monthlyBudget,
+                onboarding_completed: true,
+            })
+            .eq('user_id', user.id)
+        error = updateError
+    } else {
+        const { error: insertError } = await supabase
+            .from('users')
+            .insert({
+                user_id: user.id,
+                name: formData.name,
+                email: formData.email,
+                monthly_budget: formData.monthlyBudget,
+                onboarding_completed: true,
+            })
+        error = insertError
+    }
 
     if (error) {
         console.error('Error saving profile:', error)
@@ -41,7 +65,7 @@ export async function checkOnboardingStatus() {
     }
 
     const { data: profile } = await supabase
-        .from('user_profiles')
+        .from('users')
         .select('onboarding_completed')
         .eq('user_id', user.id)
         .single()
@@ -61,7 +85,7 @@ export async function getUserProfile() {
     }
 
     const { data: profile } = await supabase
-        .from('user_profiles')
+        .from('users')
         .select('*')
         .eq('user_id', user.id)
         .single()

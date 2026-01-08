@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
-import { ExternalLink, QrCode } from 'lucide-react'
-import { getBalance } from '../dashboard/actions'
+import { CreditCard, Loader2 } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
+import { getBalance } from '../dashboard/actions'
+import { RazorpayResponse } from '@/types/razorpay'
 
 export function PaymentGenerator() {
     const { toast } = useToast()
@@ -16,28 +17,23 @@ export function PaymentGenerator() {
     const [amount, setAmount] = useState('')
     const [name, setName] = useState('')
     const [note, setNote] = useState('')
+    const [loading, setLoading] = useState(false)
+    const [scriptLoaded, setScriptLoaded] = useState(false)
     const [balance, setBalance] = useState(0)
 
+    // Load Razorpay checkout script and fetch balance
     useEffect(() => {
+        const script = document.createElement('script')
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+        script.async = true
+        script.onload = () => setScriptLoaded(true)
+        document.body.appendChild(script)
+
         const fetchBalance = async () => {
             const { balance } = await getBalance()
             setBalance(balance)
         }
         fetchBalance()
-    }, [])
-
-    const generateLink = () => {
-        const amountNum = parseFloat(amount)
-        if (isNaN(amountNum) || amountNum <= 0) return ''
-
-        // Standard UPI Link format
-        // upi://pay?pa=address&pn=name&am=amount&cu=INR&tn=note
-        const params = new URLSearchParams()
-        if (vpa) params.append('pa', vpa)
-        if (name) params.append('pn', name)
-        if (amount) params.append('am', amount)
-        params.append('cu', 'INR')
-        if (note) params.append('tn', note)
 
         return () => {
             document.body.removeChild(script)
@@ -50,6 +46,16 @@ export function PaymentGenerator() {
                 title: 'Loading',
                 description: 'Payment system is loading, please wait...',
                 variant: 'default',
+            })
+            return
+        }
+
+        const amountNum = parseFloat(amount)
+        if (amountNum > balance) {
+            toast({
+                title: "Insufficient Balance",
+                description: `You only have ₹${balance}. Cannot pay ₹${amount}.`,
+                variant: "destructive"
             })
             return
         }
@@ -169,24 +175,7 @@ export function PaymentGenerator() {
         }
     }
 
-    const { toast } = useToast()
-
-    const handlePay = () => {
-        const amountNum = parseFloat(amount)
-        if (amountNum > balance) {
-            toast({
-                title: "Insufficient Balance",
-                description: `You only have ₹${balance}. Cannot pay ₹${amount}.`,
-                variant: "destructive"
-            })
-            return
-        }
-
-        const link = generateLink()
-        if (link) {
-            window.location.href = link
-        }
-    }
+    const isValid = vpa && amount && parseFloat(amount) > 0
 
     return (
         <Card>
@@ -228,7 +217,17 @@ export function PaymentGenerator() {
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
                     />
-                    <p className="text-xs text-muted-foreground">Available balance: ₹{balance}</p>
+                    {parseFloat(amount) < 0 && (
+                        <div className="text-sm text-red-500 font-medium">
+                            Value not accepted !!
+                        </div>
+                    )}
+                    {parseFloat(amount) > balance && (
+                        <div className="text-sm text-red-500 font-medium">
+                            Insufficient balance !!
+                        </div>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">Available balance: ₹{balance}</p>
                 </div>
 
                 <div className="space-y-2">
@@ -252,7 +251,7 @@ export function PaymentGenerator() {
                 <Button
                     className="w-full"
                     onClick={handlePay}
-                    disabled={!isValid || loading || !scriptLoaded}
+                    disabled={!isValid || loading || !scriptLoaded || parseFloat(amount) > balance}
                 >
                     {loading ? (
                         <>
