@@ -34,19 +34,56 @@ export async function middleware(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser()
 
+    const pathname = request.nextUrl.pathname
+
     // Protect Dashboard routes
-    if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
+    if (pathname.startsWith('/dashboard') && !user) {
         return NextResponse.redirect(new URL('/login', request.url))
     }
 
-    // Redirect authenticated users away from auth pages
-    if (request.nextUrl.pathname.startsWith('/login') && user) {
-        return NextResponse.redirect(new URL('/dashboard', request.url))
+    // Protect Payments routes
+    if (pathname.startsWith('/payments') && !user) {
+        return NextResponse.redirect(new URL('/login', request.url))
     }
 
-    // Rate limiting for API routes is handled by the route wrappers or specific logic
-    // within the routes themselves to avoid generic Edge Runtime limitations with Redis
-    // in this specific setup, but basic protection can be added here if needed.
+    // Protect Insights routes
+    if (pathname.startsWith('/insights') && !user) {
+        return NextResponse.redirect(new URL('/login', request.url))
+    }
+
+    // Protect Updates routes
+    if (pathname.startsWith('/updates') && !user) {
+        return NextResponse.redirect(new URL('/login', request.url))
+    }
+
+    // Check if authenticated user needs onboarding
+    if (user && (pathname.startsWith('/dashboard') || pathname.startsWith('/payments') || pathname.startsWith('/insights') || pathname.startsWith('/updates'))) {
+        // Check if user has completed onboarding
+        const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('onboarding_completed')
+            .eq('user_id', user.id)
+            .single()
+
+        if (!profile?.onboarding_completed) {
+            return NextResponse.redirect(new URL('/onboarding', request.url))
+        }
+    }
+
+    // Redirect authenticated users away from auth pages (except onboarding)
+    if ((pathname.startsWith('/login') || pathname.startsWith('/signup')) && user) {
+        // Check if user has completed onboarding first
+        const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('onboarding_completed')
+            .eq('user_id', user.id)
+            .single()
+
+        if (!profile?.onboarding_completed) {
+            return NextResponse.redirect(new URL('/onboarding', request.url))
+        }
+        return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
 
     return supabaseResponse
 }

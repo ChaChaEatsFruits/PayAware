@@ -1,45 +1,54 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { LayoutDashboard, Loader2, LogIn } from 'lucide-react'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { LayoutDashboard, Loader2, UserPlus } from 'lucide-react'
 
-export default function LoginPage() {
+export default function SignupPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const router = useRouter()
-    const searchParams = useSearchParams()
     const supabase = createClient()
 
-    const justOnboarded = searchParams.get('onboarded') === 'true'
-
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
         setError(null)
 
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        })
-
-        if (signInError) {
-            setError(signInError.message)
+        if (password !== confirmPassword) {
+            setError('Passwords do not match')
             setLoading(false)
             return
         }
 
-        router.refresh()
-        router.push('/dashboard')
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters')
+            setLoading(false)
+            return
+        }
+
+        const { error: signUpError } = await supabase.auth.signUp({
+            email,
+            password,
+        })
+
+        if (signUpError) {
+            setError(signUpError.message)
+            setLoading(false)
+            return
+        }
+
+        // Signup successful, redirect to onboarding
+        router.push('/onboarding')
         setLoading(false)
     }
 
@@ -51,22 +60,14 @@ export default function LoginPage() {
                         <LayoutDashboard className="h-6 w-6" />
                     </div>
                     <h2 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white">
-                        Welcome Back
+                        Create Account
                     </h2>
                     <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                        Sign in to your PayAware account
+                        Join PayAware for ethical, awareness-first finance
                     </p>
                 </div>
 
-                {justOnboarded && (
-                    <Alert className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
-                        <AlertDescription className="text-green-700 dark:text-green-400">
-                            Account setup complete! Please sign in with your credentials.
-                        </AlertDescription>
-                    </Alert>
-                )}
-
-                <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+                <form className="mt-8 space-y-6" onSubmit={handleSignup}>
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="email">Email address</Label>
@@ -87,9 +88,21 @@ export default function LoginPage() {
                                 name="password"
                                 type="password"
                                 required
-                                placeholder="Your password"
+                                placeholder="Min. 6 characters"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="confirmPassword">Confirm Password</Label>
+                            <Input
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                type="password"
+                                required
+                                placeholder="Confirm your password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
                             />
                         </div>
                     </div>
@@ -101,16 +114,16 @@ export default function LoginPage() {
                     )}
 
                     <Button type="submit" className="w-full" disabled={loading}>
-                        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
-                        Sign In
+                        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
+                        Create Account
                     </Button>
                 </form>
 
                 <div className="text-center text-sm text-gray-600 dark:text-gray-400">
                     <p>
-                        Don't have an account?{' '}
-                        <Link href="/signup" className="text-blue-600 hover:underline font-medium">
-                            Create one
+                        Already have an account?{' '}
+                        <Link href="/login" className="text-blue-600 hover:underline font-medium">
+                            Sign in
                         </Link>
                     </p>
                 </div>
