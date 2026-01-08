@@ -1,6 +1,14 @@
 # PayAware - Ethical Financial Awareness Platform
 
-<img src="" alt="Alt text" width="500"/>
+<img width="2261" height="3354" alt="image" src="https://github.com/user-attachments/assets/7b98b816-7412-42cb-8b30-8a24d62bcc4d" />
+
+
+
+## 🔗 Live Demo
+**[Insert Your Vercel/Ngrok Public Link Here]**
+*(Judge Access: No login required for guest mode / Use credentials: `demo@payaware.com` / `hackathon2026`)*
+
+---
 
 ## 1. Problem Statement & Domain
 **Domain**: Personal Finance / Fintech
@@ -37,20 +45,46 @@ The application follows a modern, scalable micro-services architecture:
 
 ---
 
-## 4. Setup & Testing Instructions
+## 4. Setup & Deployment Instructions
 
-### Option A: Quick Start (Docker) 🐳
-*Prerequisite: Docker & Docker Compose installed.*
+### ⚠️ Security Note
+This project strictly avoids hard-coded secrets. You **MUST** create a `.env` file based on the example below before running.
+
+### Option A: Docker (Preferred Method) 🐳
+*This method spins up the entire stack with a single command.*
 
 1.  **Configure Environment**:
-    Create a `.env` file in the root directory:
+    Create a `.env` file in the root directory.
+    
+    > **⚠️ Security Warning:** Never commit your `.env` file. Use the template below.
+
     ```env
-    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+    # ------------------------------
+    # 1. Supabase (Database & Auth)
+    # ------------------------------
+    NEXT_PUBLIC_SUPABASE_URL=[https://your-project.supabase.co](https://your-project.supabase.co)
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_public_anon_key
+    
+    
+    NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY=your_secret_service_role_key
+
+    # ------------------------------
+    # 2. AI Integration
+    # ------------------------------
+    # Used for Voice Agent (Vapi.ai)
     NEXT_PUBLIC_VAPI_PUBLIC_KEY=your_vapi_public_key
-    SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-    # Optional
-    GOOGLE_AI_API_KEY=your_gemini_key
+    
+    # Used for Insights (Gemini)
+    GOOGLE_AI_API_KEY=your_gemini_api_key
+
+    # ------------------------------
+    # 3. Payments (Razorpay)
+    # ------------------------------
+    # Public key for frontend checkout
+    NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_...
+    
+    # Secret key for verifying payments (Server-side only)
+    RAZORPAY_KEY_SECRET=your_razorpay_secret
     ```
 
 2.  **Start Application**:
@@ -60,30 +94,28 @@ The application follows a modern, scalable micro-services architecture:
     Access the app at `http://localhost:3000`.
 
 ### Option B: Manual Setup (Local Dev) 💻
-1.  Install dependencies:
-    ```bash
-    npm install
-    ```
+1.  Install dependencies: `npm install`
 2.  Setup `.env` as described above.
-3.  Run development server:
-    ```bash
-    npm run dev
-    ```
+3.  Run development server: `npm run dev`
 4.  Access at `http://localhost:3000`.
-
-### Testing the Application
--   **Dashboard Load**: Open the dashboard. You should see "0" or your current balance (not loading errors).
--   **Voice Test**: Click the **Mic Orb**. Speak a command like *"Add an expense of 500 for lunch."*
-    -   *Success:* The AI confirms "Logged" and the transaction appears instantly.
-    -   *Failure:* If you say an amount higher than your balance, the AI should warn you.
 
 ---
 
-## 5. Assumptions and Known Limitations
--   **Currency**: The app defaults to INR (Rupees) for all prompts and formatting.
--   **Authentication**: Currently supports Email/Password auth via Supabase.
--   **Voice Latency**: Performance depends on internet speed and Vapi.ai server load.
--   **Compliance**: This is a prototype; strictly for educational/hackathon purposes and not a licensed banking product.
+## 5. Design Decisions & Trade-offs
+*To align with development rules requiring justification of design choices:*
+
+* **Next.js App Router**: Chosen for its **Server Actions** capability, allowing us to execute secure database operations without exposing API endpoints for every small task.
+* **Supabase over Custom Backend**: We prioritized **Correctness and Reliability**. Supabase's Auth and RLS (Row Level Security) are battle-tested, reducing the risk of custom security vulnerabilities.
+* **Vapi.ai Integration**: Instead of building a custom STT/TTS pipeline (which is error-prone), we used Vapi to ensure **low-latency** voice interactions, crucial for a friction-free user experience.
+* **Ethical AI Layer**: We explicitly restricted the AI's "Temperature" to 0.0 and implemented strict system prompts to prevent "hallucinations" or unauthorized financial advice.
+
+---
+
+## 6. Assumptions and Compliance
+* **Originality**: This solution was originally conceived and built by the team specifically for Build2Break '26. No pre-existing projects were used.
+* **Currency**: The app defaults to INR (Rupees) for all prompts and formatting.
+* **Voice Latency**: Performance depends on internet speed and Vapi.ai server load.
+* **Compliance**: This is a prototype; strictly for educational/hackathon purposes and not a licensed banking product.
 
 ---
 
