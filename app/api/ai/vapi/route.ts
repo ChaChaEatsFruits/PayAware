@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
                 // 3. Create Admin Client
                 const supabaseAdmin = createClient(
                     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                    process.env.SUPABASE_SERVICE_ROLE_KEY!
+                    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!
                 );
 
                 // --- NEW: BALANCE VALIDATION LOGIC ---
