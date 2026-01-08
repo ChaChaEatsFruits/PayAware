@@ -1,18 +1,15 @@
-
-
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { LayoutDashboard, Loader2, ArrowRight, CheckCircle2 } from 'lucide-react'
+import { LayoutDashboard, Loader2, CheckCircle2 } from 'lucide-react'
 import { motion } from 'framer-motion'
-import Link from 'next/link'
 
-export default function LoginPage() {
+function LoginForm() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
@@ -219,26 +216,24 @@ export default function LoginPage() {
                             </div>
                         </div>
                     </div>
-
-                    <p className="px-8 text-center text-sm text-muted-foreground">
-                        By clicking continue, you agree to our{" "}
-                        <Link
-                            href="/terms"
-                            className="underline underline-offset-4 hover:text-primary"
-                        >
-                            Terms of Service
-                        </Link>{" "}
-                        and{" "}
-                        <Link
-                            href="/privacy"
-                            className="underline underline-offset-4 hover:text-primary"
-                        >
-                            Privacy Policy
-                        </Link>
-                        .
-                    </p>
                 </motion.div>
             </div>
         </div>
+    )
+}
+
+function LoginFormFallback() {
+    return (
+        <div className="w-full min-h-screen flex items-center justify-center bg-background">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        </div>
+    )
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<LoginFormFallback />}>
+            <LoginForm />
+        </Suspense>
     )
 }

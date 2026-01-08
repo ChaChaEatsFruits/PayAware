@@ -1,7 +1,5 @@
-
 'use client'
-
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -10,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { LayoutDashboard, Loader2, UserPlus } from 'lucide-react'
 
-export default function SignupPage() {
+function SignupForm() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
@@ -133,5 +131,21 @@ export default function SignupPage() {
                 </div>
             </div>
         </div>
+    )
+}
+
+function SignupFallback() {
+    return (
+        <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        </div>
+    )
+}
+
+export default function SignupPage() {
+    return (
+        <Suspense fallback={<SignupFallback />}>
+            <SignupForm />
+        </Suspense>
     )
 }

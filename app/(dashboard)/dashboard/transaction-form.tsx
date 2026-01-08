@@ -32,7 +32,7 @@ import { useToast } from '@/components/ui/use-toast'
 
 const formSchema = z.object({
     type: z.enum(['income', 'expense']),
-    amount: z.coerce.number().min(0.01, { message: "Amount must be positive" }),
+    amount: z.number().min(0.01, { message: "Amount must be positive" }),
     category: z.string().min(1, { message: "Please select a category" }),
     description: z.string().optional(),
 })
@@ -147,10 +147,13 @@ export function TransactionForm() {
                                                 type="number"
                                                 placeholder="0.00"
                                                 className="pl-9"
-                                                defaultValue={""}
-                                                min={""}
+                                                min={0}
                                                 step={0.01}
-                                                {...field}
+                                                value={field.value}
+                                                onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
+                                                onBlur={field.onBlur}
+                                                name={field.name}
+                                                ref={field.ref}
                                             />
                                         </div>
                                     </FormControl>

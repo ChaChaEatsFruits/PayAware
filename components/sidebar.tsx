@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
@@ -33,7 +33,6 @@ const navItems = [
     { href: '/insights', label: 'Insights', icon: PieChart },
     { href: '/updates', label: 'Updates', icon: Bell },
 ]
-
 export function Sidebar({ userEmail, userAvatarUrl }: SidebarProps) {
     const pathname = usePathname()
     const [open, setOpen] = useState(false)
@@ -50,10 +49,14 @@ export function Sidebar({ userEmail, userAvatarUrl }: SidebarProps) {
                 <SheetContent side="left" className="w-64 p-0">
                     <div className="flex flex-col h-full">
                         <div className="p-6">
-                            <div className="flex items-center gap-2 font-bold text-xl">
+                            <Link
+                                href={userEmail ? '/dashboard' : '/login'}
+                                onClick={() => setOpen(false)}
+                                className="flex items-center gap-2 font-bold text-xl"
+                            >
                                 <Wallet className="h-6 w-6 text-primary" />
                                 <span>PayAware</span>
-                            </div>
+                            </Link>
                         </div>
                         <Separator />
                         <nav className="flex-1 p-4 space-y-2">
@@ -87,7 +90,7 @@ export function Sidebar({ userEmail, userAvatarUrl }: SidebarProps) {
                                 </div>
                             </div>
                             <form action={signOut}>
-                                <Button variant="outline" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20">
+                                <Button variant="outline" className="w-full justify-center text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20">
                                     <LogOut className="mr-2 h-4 w-4" />
                                     Log out
                                 </Button>
@@ -100,10 +103,13 @@ export function Sidebar({ userEmail, userAvatarUrl }: SidebarProps) {
             {/* Desktop Sidebar */}
             <div className="hidden md:flex flex-col w-64 fixed inset-y-0 border-r bg-card/50 backdrop-blur-xl">
                 <div className="p-6">
-                    <div className="flex items-center gap-2 font-bold text-xl">
+                    <Link
+                        href={userEmail ? '/dashboard' : '/login'}
+                        className="flex items-center gap-2 font-bold text-xl"
+                    >
                         <Wallet className="h-6 w-6 text-primary" />
                         <span>PayAware</span>
-                    </div>
+                    </Link>
                 </div>
                 <Separator />
                 <div className="flex-1 p-4 space-y-2 overflow-y-auto">
@@ -136,7 +142,7 @@ export function Sidebar({ userEmail, userAvatarUrl }: SidebarProps) {
                         </div>
                     </div>
                     <form action={signOut}>
-                        <Button variant="outline" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20">
+                        <Button variant="outline" className="w-full justify-center text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20">
                             <LogOut className="mr-2 h-4 w-4" />
                             Log out
                         </Button>

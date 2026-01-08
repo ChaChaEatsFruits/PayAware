@@ -4,6 +4,9 @@ import { Badge } from '@/components/ui/badge'
 import { Newspaper, BellRing, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export default async function UpdatesPage() {
     // Fetch data in parallel
     const regulatoryUpdatesData = fetchRegulatoryUpdates()
@@ -24,7 +27,7 @@ export default async function UpdatesPage() {
     return (
         <div className="flex flex-col space-y-8 p-8 max-w-4xl mx-auto">
             <div>
-                <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+                <h1 className="mx-6 md:mx-0 text-center align-center text-3xl font-bold tracking-tight flex items-center gap-2">
                     <Newspaper className="h-8 w-8 text-blue-500" />
                     Regulatory Updates
                 </h1>

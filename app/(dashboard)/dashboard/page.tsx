@@ -1,4 +1,8 @@
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { getBalance, getRecentTransactions } from './actions'
+
 import { TransactionForm } from './transaction-form'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/utils/format'
@@ -19,7 +23,7 @@ export default async function DashboardPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="mx-10 text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+                    <h1 className="mx-10 md:mx-0 text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
                         Financial Overview
                     </h1>
                     <p className="text-muted-foreground mt-1">

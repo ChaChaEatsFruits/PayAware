@@ -1,7 +1,6 @@
-
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -11,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { LayoutDashboard, Loader2, Sparkles, IndianRupee } from 'lucide-react'
 import { saveUserProfile } from './actions'
 
-export default function OnboardingPage() {
+function OnboardingForm() {
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [monthlyBudget, setMonthlyBudget] = useState('')
@@ -180,5 +179,21 @@ export default function OnboardingPage() {
                 </div>
             </div>
         </div>
+    )
+}
+
+function OnboardingFallback() {
+    return (
+        <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        </div>
+    )
+}
+
+export default function OnboardingPage() {
+    return (
+        <Suspense fallback={<OnboardingFallback />}>
+            <OnboardingForm />
+        </Suspense>
     )
 }
